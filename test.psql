@@ -1,0 +1,1 @@
+COPY test FROM '/home/dmchoi/Projects/MIT/CSVQuerier/data.csv' delimiter '|' csv;

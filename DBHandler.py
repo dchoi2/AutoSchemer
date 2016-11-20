@@ -60,6 +60,7 @@ class DBHandler:
       ") ;")
 
       cursor.execute(sql_insert)
-      print "Inserted row: {} to table {}".format(row, t.get_id())
+    print "Inserted row: {} ".format(row)
     self.db.commit()
-      
+  
+

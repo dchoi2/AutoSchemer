@@ -49,6 +49,7 @@ class Schema:
   def get_table(self, i):
     return self.tmap[i]
 
+  # TODO: fix this... hacked right now
   def parse_data_with_type(self, col, data):
     if self.types[col] == 'INT':
       return data
@@ -166,3 +167,5 @@ if __name__ == '__main__':
   with open(data_file, 'rb') as csvfile:
     reader = csv.reader(csvfile, delimiter=',', quotechar='|')
     [dbh.insert_row(row) for row in reader]
+
+  

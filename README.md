@@ -1,6 +1,21 @@
 # CSVQuerier
 TODO: README
 
+Components Overview:
+Parser: parses data file, Returns:
+    - distinct rows => (col_num, num_distinct_rows)
+    - column numbers ordered by most distinct rows
+    - list of type guessers
+
+TypeGuesser: aggregate histogram heuristic to guess what the type of a column is. Used in Parser while iterating through each row/column.
+
+
+AutoSchemer: the wrapper for running the program
+
+Table: tables have ids, a list of columns, a list of foreign keys which point to different tables if there is a relation between them, and a list of primary_keys which is not necessarily distinct from the list of columns.
+
+Schema: for simplicity, currently schema contains two objects: 1) a list of tables, and 2) a list of types corresponding to the columns of the dataset. This is computed with the TypeGuesser class while parsing, as mentioned above
+
 
 #####
 Steps for psql setup (INCOMPLETE)

@@ -1,4 +1,4 @@
-#SVAutoSchemer
+#CSVAutoSchemer
 
 ### Setup and configurations
 ##### Python libraries

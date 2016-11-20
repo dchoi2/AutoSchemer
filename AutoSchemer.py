@@ -14,6 +14,15 @@ class Table:
   def get_id(self):
     return self.id
 
+  def get_cols(self):
+    return self.cols
+
+  def get_pkeys(self):
+    return self.primary_keys
+
+  def get_fkeys(self):
+    return self.foreign_keys
+
   def __str__(self):
     output = "Table Id: {}".format(self.id) + "\n" 
     output += "Column Numbers: " + ",".join([str(x) for x in self.cols]) + "\n" 
@@ -25,13 +34,35 @@ class Schema:
     self.schema_name = schema_name
     self.tables = []
     self.types = []
+    self.tmap = {}
 
   def __str__(self):
     output =  "Schema: {} \n".format(self.schema_name) + "\n".join([str(table) for table in self.tables]) 
     return output 
   
+  def get_name(self):
+    return self.schema_name
+
+  def get_tables(self):
+    return self.tables
+
+  def get_table(self, i):
+    return self.tmap[i]
+
+  def parse_data_with_type(self, col, data):
+    if self.types[col] == 'INT':
+      return data
+    if self.types[col] == 'FLOAT':
+      return data
+    if self.types[col] == 'VARCHAR':
+      return "\'{}\'".format(data)
+  
+  def get_types(self):
+    return self.types
+
   def add(self, table):
     self.tables.append(table)
+    self.tmap[table.get_id()] = table
 
   def set_types(self, types):
     self.types = types
@@ -132,6 +163,6 @@ if __name__ == '__main__':
   print "db_user: {}".format(dbuser)
 
   dbh = DBHandler(sc, dbhost=dbhost, dbname=dbname, dbuser=dbuser, dbpwd=dbpwd)
-  #with open(data_file, 'rb') as csvfile:
-  #  reader = csv.reader(csvfile, delimiter=',', quotechar='|')
-  #  [dbh.insert_row(row) for row in reader]
+  with open(data_file, 'rb') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+    [dbh.insert_row(row) for row in reader]

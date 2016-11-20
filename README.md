@@ -1,4 +1,4 @@
-SVAutoSchemer
+#SVAutoSchemer
 
 ### Setup and configurations
 ##### Python libraries
@@ -24,6 +24,7 @@ You'll need to set up environmental variables for your postgres db credentials. 
 * **dbuser**: name of the user with the sufficient privilege to access the above dbname
 * **dbhost**: this will be localhost for our purposes
 * **dbpwd**: depending on the method of authentication you configured at '/etc/postgresql/x.x/main/pg_hba.conf', the program will require a password corresponding to the dbuser. If the method is 'trust', then dbpwd is not required
+
 An example script would look like:
 
 ```bash

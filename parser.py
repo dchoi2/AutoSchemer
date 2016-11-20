@@ -1,4 +1,4 @@
-import csv, itertools
+import csv
 
 def parse(file): 
 	with open(file, 'rb') as csvfile:

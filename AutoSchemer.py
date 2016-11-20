@@ -1,5 +1,6 @@
-import csv, itertools, sys
+import csv, itertools, sys, os
 import Parser
+from DBHandler import DBHandler
 
 class Table:
   idx = 0
@@ -20,12 +21,13 @@ class Table:
     return output
 
 class Schema:
-  def __init__(self):
+  def __init__(self, schema_name):
+    self.schema_name = schema_name
     self.tables = []
     self.types = []
 
   def __str__(self):
-    output =  "Schema: \n" + "\n".join([str(table) for table in self.tables]) 
+    output =  "Schema: {} \n".format(self.schema_name) + "\n".join([str(table) for table in self.tables]) 
     return output 
   
   def add(self, table):
@@ -38,13 +40,11 @@ class Schema:
     print "Type Guesses:"
     for i, tg in enumerate(tgs):
       print "Col {} : {}".format(i, tg.get_type())
-    print ""
   
   def create_schema(self, file):
     self.create_table(file, col_order)
 
   def create_table(self, file, columns_use):
-    #print "CREATING SCHEMA" 
     columns_use = set(columns_use)
     # columns => column numbers considered in the recursive loop
     columns = [i for i in col_order if i in columns_use]
@@ -100,9 +100,10 @@ class Schema:
       
 
 if __name__ == '__main__':
+  schema_name = "testSchema"
   global col_order 
   global sc
-  sc = Schema()
+  sc = Schema(schema_name)
   
   data_file = 'data/test.csv'
   if len(sys.argv) == 1:
@@ -120,3 +121,17 @@ if __name__ == '__main__':
   sc.create_schema(data_file)
   #create_schema(data_file, col_order)
   print sc
+
+  ###################
+  dbname = os.environ['dbname']
+  dbuser = os.environ['dbuser']
+  dbhost = os.environ['dbhost']
+  dbpwd = os.environ['dbpwd']
+  print "Beginning to create schema and tables in psql"
+  print "db_name: {}".format(dbname)
+  print "db_user: {}".format(dbuser)
+
+  dbh = DBHandler(sc, dbhost=dbhost, dbname=dbname, dbuser=dbuser, dbpwd=dbpwd)
+  #with open(data_file, 'rb') as csvfile:
+  #  reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+  #  [dbh.insert_row(row) for row in reader]

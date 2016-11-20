@@ -86,12 +86,17 @@ if __name__ == '__main__':
   else:
     data_file = sys.argv[1]
 
-  (distinctRows, col_order) = Parser.parse(data_file)
+  (distinctRows, col_order, tgs) = Parser.parse(data_file)
 
   global tables
   tables = []
 
   create_schema(data_file, col_order)
+
+  print "Type Guesses:"
+  for i, tg in enumerate(tgs):
+    print "Col {} : {}".format(i, tg.get_type())
+  print ""
 
   print "Schema: " 
   for table in tables:

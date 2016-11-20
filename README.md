@@ -3,12 +3,13 @@ TODO: README
 
 
 #####
-INCOMPLETE:
-Steps for psql setup
+Steps for psql setup (INCOMPLETE)
 1) createdb db_name
-2) create user user_name
 
-# optional, or just use postgres user
+# Use postgres user 
+sudo su - postgres
+
+# OR create psql user
 psql# CREATE USER user_name WITH PASSWORD 'password';
 psql# GRANT ALL PRIVILEGES ON DATABASE db_name TO user_name;
 

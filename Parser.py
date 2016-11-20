@@ -14,4 +14,3 @@ def parse(file):
   distinctRows = [(i,len(x)) for i,x in enumerate(data)]
   col_order = [i for i,v in sorted(distinctRows, key=lambda v: v[1], reverse=True)]
   return (distinctRows, col_order)
-  

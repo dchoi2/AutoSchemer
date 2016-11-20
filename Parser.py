@@ -30,13 +30,14 @@ class TypeGuesser(object):
         self.count[self.Types.STRING] += 1
 
   def get_type(self):
-      return self.Types.reverse_mapping[max(xrange(len(self.count)), key=self.count.__getitem__)]
+      t = max(xrange(len(self.count)), key=self.count.__getitem__)
+      return self.Types.reverse_mapping[t]
 
 def parse(file): 
   data = []
   with open(file, 'rb') as csvfile:
     reader, reader2 = itertools.tee(csv.reader(csvfile, delimiter=',', quotechar='|'))
-    data = [set() for j in next(reader)]
+    data = [set() for _ in next(reader)]
     columns = len(data)
     tgs = [TypeGuesser() for _ in range(columns)]
     count = 0

@@ -1,4 +1,4 @@
-import csv, itertools
+import csv, itertools, sys
 import Parser
 
 class Table:
@@ -74,7 +74,13 @@ def create_schema(file, columns_use):
 if __name__ == '__main__':
   global distinctRows
   global col_order 
+  
   data_file = 'data/test.csv'
+  if len(sys.argv) == 1:
+    print "No data file argument found... using default file 'data/test.csv'"
+  else:
+    data_file = sys.argv[1]
+
   (distinctRows, col_order) = Parser.parse(data_file)
 
   global tables

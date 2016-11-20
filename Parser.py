@@ -1,18 +1,17 @@
 import csv, itertools
 
 def parse(file): 
+  data = []
   with open(file, 'rb') as csvfile:
     reader, reader2 = itertools.tee(csv.reader(csvfile, delimiter=',', quotechar='|'))
-    #for i in reader:
-    #  print i
-    data = [set() for j in reader2]
+    data = [set() for j in next(reader)]
     columns = len(data)
     count = 0
-    print data
-    for row in reader:
+    for row in reader2:
       count += 1
       for j, v in enumerate(row):
         data[j].add(row[j])
-    print data
-
-parse('data/test.csv');
+  distinctRows = [(i,len(x)) for i,x in enumerate(data)]
+  col_order = [i for i,v in sorted(distinctRows, key=lambda v: v[1], reverse=True)]
+  return (distinctRows, col_order)
+  

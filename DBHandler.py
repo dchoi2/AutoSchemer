@@ -38,6 +38,7 @@ class DBHandler:
     with open(data_file, 'rb') as csvfile:
       reader = csv.reader(csvfile, delimiter=',', quotechar='|')
       [self._insert_row(row) for row in reader]
+      print "Finished loading file: {}".format(data_file)
 
   def _insert_row(self, rowd):
     # row_data => array of values
@@ -73,7 +74,7 @@ class DBHandler:
       ") ;")
 
       cursor.execute(sql_insert)
-    print "Inserted row: {} ".format(row)
+    #print "Inserted row: {} ".format(row)
     self.db.commit()
   
 

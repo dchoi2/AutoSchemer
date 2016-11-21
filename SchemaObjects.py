@@ -68,4 +68,5 @@ class Schema:
     print "Type Guesses:"
     for i, t in enumerate(self.types):
       print "Col {} : {}".format(i, t)
+    print ""
 

@@ -1,8 +1,8 @@
-import pgdb, re
+import pgdb, re, csv
 
 class DBHandler:
-  def __init__(self, sc, dbhost='localhost', dbname='autoschemer', dbuser='postgres', dbpwd = None):
-    self.db = pgdb.connect(database=dbname, user=dbuser, host=dbhost, password=dbpwd)
+  def __init__(self, sc, db = None):
+    self.db = db
     self.schema = sc;
     sc_name = sc.get_name()
     cursor = self.db.cursor()
@@ -33,8 +33,13 @@ class DBHandler:
 
       cursor.execute(sql_create_tbl)
       print "CREATING TABLE: table_{}".format(t.get_id())
+  
+  def load_file(self, data_file):
+    with open(data_file, 'rb') as csvfile:
+      reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+      [self._insert_row(row) for row in reader]
 
-  def insert_row(self, rowd):
+  def _insert_row(self, rowd):
     # row_data => array of values
     cursor = self.db.cursor()
     sc_name = self.schema.get_name()

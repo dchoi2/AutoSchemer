@@ -1,4 +1,4 @@
-import pgdb
+import pgdb, re
 
 class DBHandler:
   def __init__(self, sc, dbhost='localhost', dbname='autoschemer', dbuser='postgres', dbpwd = None):
@@ -34,10 +34,18 @@ class DBHandler:
       cursor.execute(sql_create_tbl)
       print "CREATING TABLE: table_{}".format(t.get_id())
 
-  def insert_row(self, row):
+  def insert_row(self, rowd):
     # row_data => array of values
     cursor = self.db.cursor()
     sc_name = self.schema.get_name()
+    types = self.schema.get_types()
+    row = rowd
+    # for i,v in enumerate(rowd):
+    #   if types[i]=='VARCHAR':
+    #     row.append(re.escape(v))
+    #   else:
+    #     row.append(v)
+    # print row
     for t in self.schema.get_tables():
 
       col_names = ", ".join(["col_{}".format(col) for col in t.get_cols()])

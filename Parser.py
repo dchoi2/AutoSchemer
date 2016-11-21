@@ -1,5 +1,5 @@
 import csv, itertools
-
+import re
 #class Types:
 #  num_types = 4
 #  INT, FLOAT, STRING, DATE = range(num_types)
@@ -44,8 +44,10 @@ def parse(file):
     for row in reader2:
       count += 1
       for j, v in enumerate(row):
-        data[j].add(row[j])
-        tgs[j].add(row[j])
+        #de = re.escape(row[j])
+        de = row[j]
+        data[j].add(de)
+        tgs[j].add(de)
         
   distinctRows = [(i,len(x)) for i,x in enumerate(data)]
   col_order = [i for i,v in sorted(distinctRows, key=lambda v: v[1], reverse=True)]

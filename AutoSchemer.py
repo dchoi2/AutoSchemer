@@ -54,27 +54,47 @@ class Schema:
       done = set()
       primary_key = set()
       foreign_keys= set()
-      for i, co in enumerate(columns):
+
+      # compare column i with the other columns
+      for i, co in  enumerate(columns):
         if co not in done:
           # valid => set of valid column numbers to compare against
           valid = set([c for c in columns if c not in done and c != co])
           prev = [None for _ in col_order]
           compared = False
+
+          #similar stuff
+          similarity_test =  set([c for c in col_order if c != co])
+          similarity = []
+          for v in similarity_test:
+            similarity.append(set())
+
+          row_count = 0
           for r in sorted(readers[i], key=lambda row:row[co]):
             #print "prev: ", prev
             #print "r: ", r
+            row_count+=1;
             if prev[co] == r[co]:
               compared = True
               [valid.remove(c) for c in list(valid) if prev[c] != r[c]]
             
             # if no more valid columns to compare against break out
-            if len(valid) == 0:
-              break;
+            # if len(valid) == 0:
+            #   break;
 
-            # update prev
-            for c in valid:
+            for i,c in enumerate(similarity_test):
+              similarity[i].add(r[co] + " " + r[c])
               prev[c] = r[c]
             prev[co] = r[co]
+
+            # update prev
+            for c in similarity_test:
+              prev[c] = r[c]
+            prev[co] = r[co]    
+          
+          for i,c in enumerate(similarity_test):    
+            if (len(similarity[i]) <= 0.5 * row_count):
+              valid.add(c); #add it back
          
           # if after the for loop, valid is not empty, that means that the columns could potentially
           #   be separated into a different table. Add a few checks, making sure that the column checked

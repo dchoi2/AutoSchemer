@@ -1,5 +1,5 @@
 import csv, itertools
-
+import re
 #class Types:
 #  num_types = 4
 #  INT, FLOAT, STRING, DATE = range(num_types)
@@ -13,7 +13,7 @@ def enum(*sequential, **named):
 
 # TypeGuesser uses histogram heuristics to guess the type of each column
 class TypeGuesser(object):
-  Types = enum('INT', 'FLOAT', 'STRING', 'DATE')
+  Types = enum('INT', 'FLOAT', 'VARCHAR', 'DATE')
   def __init__(self):
     self.count = [0 for _ in range(self.Types.num_types)]
 
@@ -27,7 +27,7 @@ class TypeGuesser(object):
         float(val)
         self.count[self.Types.FLOAT]+=1
       except ValueError:
-        self.count[self.Types.STRING] += 1
+        self.count[self.Types.VARCHAR] += 1
 
   def get_type(self):
       t = max(xrange(len(self.count)), key=self.count.__getitem__)
@@ -44,9 +44,13 @@ def parse(file):
     for row in reader2:
       count += 1
       for j, v in enumerate(row):
-        data[j].add(row[j])
-        tgs[j].add(row[j])
+        #de = re.escape(row[j])
+        de = row[j]
+        data[j].add(de)
+        tgs[j].add(de)
         
   distinctRows = [(i,len(x)) for i,x in enumerate(data)]
   col_order = [i for i,v in sorted(distinctRows, key=lambda v: v[1], reverse=True)]
-  return (distinctRows, col_order, tgs)
+
+  types = [tg.get_type() for tg in tgs]
+  return (distinctRows, col_order, types)

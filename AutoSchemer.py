@@ -1,53 +1,34 @@
-import csv, itertools, sys
+import csv, itertools, sys, os
 import Parser
+from SchemaObjects import Table, Schema
+from DBHandler import DBHandler
+from DBConnection import DBConnection
+    
+class AutoSchemer:
+  def __init__(self, data_files):
+    self.data_files = data_files
+    schema_name = "testSchema"
+    # col_order is order to traverse columns
+    self.col_order = []
+    self.distinct_rows = []
+    self.sc = Schema(schema_name)
 
-class Table:
-  idx = 0
-  def __init__(self, cols, primary_key, foreign_keys):
-    Table.idx += 1
-    self.id = Table.idx
-    self.cols = cols
-    self.primary_keys = primary_key
-    self.foreign_keys = foreign_keys
+  def run(self):
+    data_file = self.data_files[0]
 
-  def get_id(self):
-    return self.id
+    (self.distinct_rows, self.col_order, types) = Parser.parse(data_file)
+    self.sc.set_types(types)
+    self.sc.print_types()
+    self._create_schema(data_file)
+    print self.sc
 
-  def __str__(self):
-    output = "Table Id: {}".format(self.id) + "\n" 
-    output += "Column Numbers: " + ",".join([str(x) for x in self.cols]) + "\n" 
-    output += "Foreign Key Tables: " + ",".join([str(x) for x in self.foreign_keys]) + "\n"
-    return output
+  def _create_schema(self, file):
+    self._add_table(file, self.col_order)
 
-class Schema:
-  def __init__(self):
-    self.tables = []
-    self.types = []
-
-  def __str__(self):
-    output =  "Schema: \n" + "\n".join([str(table) for table in self.tables]) 
-    return output 
-  
-  def add(self, table):
-    self.tables.append(table)
-
-  def set_types(self, types):
-    self.types = types
-
-  def print_types(self):
-    print "Type Guesses:"
-    for i, tg in enumerate(tgs):
-      print "Col {} : {}".format(i, tg.get_type())
-    print ""
-  
-  def create_schema(self, file):
-    self.create_table(file, col_order)
-
-  def create_table(self, file, columns_use):
-    #print "CREATING SCHEMA" 
+  def _add_table(self, file, columns_use):
     columns_use = set(columns_use)
     # columns => column numbers considered in the recursive loop
-    columns = [i for i in col_order if i in columns_use]
+    columns = [i for i in self.col_order if i in columns_use]
     with open(file, 'rb') as csvfile:
       readers = itertools.tee(csv.reader(csvfile, delimiter=',', quotechar='|'), len(columns))
 
@@ -60,7 +41,7 @@ class Schema:
         if co not in done:
           # valid => set of valid column numbers to compare against
           valid = set([c for c in columns if c not in done and c != co])
-          prev = [None for _ in col_order]
+          prev = [None for _ in self.col_order]
           compared = False
 
           #similar stuff
@@ -106,7 +87,7 @@ class Schema:
             for c in valid:
               done.add(c)
               next_columns.append(c)
-            table_id = self.create_table(file, next_columns)
+            table_id = self._add_table(file, next_columns)
             foreign_keys.add(table_id)
           else: # if the column cannot be separated into a separate table, just add it to the primary_key/columns of the current table
             primary_key.add(co)
@@ -115,28 +96,37 @@ class Schema:
 
       # create new table with col = primary_key, and foreign_keys be a reference to other table_ids
       t = Table(list(primary_key), list(primary_key), list(foreign_keys))
-      self.add(t)
+      self.sc.add(t)
       return t.get_id()
-      
+
+
+  def load_db(self):
+    dbname = os.environ['dbname']
+    dbuser = os.environ['dbuser']
+    dbhost = os.environ['dbhost']
+    dbpwd = os.environ['dbpwd']
+    print "---LOADING CSV FILES TO DATABASE---"
+    print "Using credentials for db: {}, user: {} ".format(dbname, dbuser)
+    
+    try:
+      db_connection = DBConnection(dbhost=dbhost, dbname=dbname, dbuser=dbuser, dbpwd=dbpwd)
+    except Exception as e:
+      print "Database Connection Failed: {}".format(e)
+      return
+    print "Database Connection Successful"
+    dbh = DBHandler(self.sc, db=db_connection.get_instance())
+    for data_file in self.data_files:
+      dbh.load_file(data_file)
+
 
 if __name__ == '__main__':
-  global col_order 
-  global sc
-  sc = Schema()
-  
   data_file = 'data/test.csv'
   if len(sys.argv) == 1:
     print "No data file argument found... using default file 'data/test.csv'"
   else:
     data_file = sys.argv[1]
-
-  # distinctRows => (col_num, num_distinct_rows)
-  # col_order => [col_num, col_num ...], ordered by most distinct rows
-  # tgs => list of TypeGuessers for each column
-  # NOTE: Don't really use distinctRows currently... keeping just in case
-  (distinctRows, col_order, tgs) = Parser.parse(data_file)
-  sc.set_types([tg.get_type() for tg in tgs])
-  sc.print_types()
-  sc.create_schema(data_file)
-  #create_schema(data_file, col_order)
-  print sc
+  
+  data_files = [data_file]
+  Auto = AutoSchemer(data_files)
+  Auto.run()
+  Auto.load_db() 

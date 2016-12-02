@@ -1,1 +1,13 @@
 COPY test FROM '/home/dmchoi/Projects/MIT/CSVQuerier/data.csv' delimiter '|' csv;
+
+
+CREATE SCHEMA testSchema;
+
+CREATE TABLE testSchema.tablei (
+  _id serial primary key,
+  col_j type[j],
+  col_k type[k],
+  fk_j REFERENCES testSchema.tablej(_id) ON DELETE CASCADE
+);
+
+INSERT INTO testSchema.tablei (col_j, col_k, fk_j) values (val_j, val_k, (SELECT _id from tablej where col_j=val_j...));

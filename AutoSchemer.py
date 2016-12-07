@@ -45,7 +45,7 @@ class AutoSchemer:
           compared = False
 
           #similar stuff
-          similarity_test =  set([c for c in col_order if c != co])
+          similarity_test =  set([c for c in self.col_order if c != co])
           similarity = []
           for v in similarity_test:
             similarity.append(set())

@@ -11,9 +11,9 @@ class AutoSchemerCORDS(AutoSchemer):
     data_file = self.data_files[0]
 
     if prune:
-      (self.distinct_rows, self.col_order, types) = Parser.parse_prune_simple(data_file)
+      (self.distinct_rows, self.col_order, types) = Parser.parse_prune_cords(data_file)
     else:
-      (self.distinct_rows, self.col_order, types) = Parser.parse_simple(data_file)
+      (self.distinct_rows, self.col_order, types) = Parser.parse_cords(data_file)
 
     self.sc.set_types(types)
     self.sc.print_types()

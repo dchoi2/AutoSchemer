@@ -99,3 +99,25 @@ def parse_cords(file):
 
   types = [tg.get_type() for tg in tgs]
   return (distinctRows, col_order, types)
+
+def parse_prune_cords(file): 
+  data = []
+  with open(file, 'rb') as csvfile:
+    reader, reader2 = itertools.tee(csv.reader(csvfile, delimiter=',', quotechar='|'))
+    data = [set() for _ in next(reader)]
+    columns = range(len(data))
+    tgs = [TypeGuesser() for _ in columns]
+    count = 0
+    for row in reader2:
+      count += 1
+      for j, v in enumerate(row):
+        #de = re.escape(row[j])
+        de = row[j]
+        data[j].add(de)
+        tgs[j].add(de)
+        
+  distinctRows = [(i,len(x)) for i,x in enumerate(data)]
+  col_order = [i for i,v in sorted(distinctRows, key=lambda v: v[1], reverse=True)]
+
+  types = [tg.get_type() for tg in tgs]
+  return (distinctRows, col_order, types)

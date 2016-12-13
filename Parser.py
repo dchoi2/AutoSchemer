@@ -37,7 +37,7 @@ class TypeGuesser(object):
 def parse_simple(file): 
   data = []
   with open(file, 'rb') as csvfile:
-    reader, reader2 = itertools.tee(csv.reader(csvfile, delimiter=',', quotechar='|'))
+    reader, reader2 = itertools.tee(csv.reader(csvfile))
     data = [set() for _ in next(reader)]
     columns = range(len(data))
     tgs = [TypeGuesser() for _ in columns]

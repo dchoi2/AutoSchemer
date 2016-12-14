@@ -27,7 +27,6 @@ class AutoSchemerCORDS(AutoSchemer):
   def _add_table(self, file, columns):
     # columns => column numbers considered in the recursive loop
     with open(file, 'rb') as csvfile:
-
       done = set()
       primary_key = set()
       map_foreign_keys= []

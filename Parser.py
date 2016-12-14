@@ -1,6 +1,7 @@
 import AutoSchemer 
 import csv, itertools
 import re
+from random import randint
 #class Types:
 #  num_types = 4
 #  INT, FLOAT, STRING, DATE = range(num_types)
@@ -79,25 +80,46 @@ def parse_prune_simple(file):
   return (distinctRows, col_order, types)
 
 def parse_cords(file): 
+  k = 5000
   data = []
+  sampled_data = []
   with open(file, 'rb') as csvfile:
     reader, reader2 = itertools.tee(csv.reader(csvfile, delimiter=',', quotechar='|'))
-    data = [set() for _ in next(reader)]
+    sampled_data = [[] for j in range(min(len(data), k))]
     columns = range(len(data))
     tgs = [TypeGuesser() for _ in columns]
     count = 0
     for row in reader2:
-      count += 1
-      for j, v in enumerate(row):
-        #de = re.escape(row[j])
-        de = row[j]
-        data[j].add(de)
-        tgs[j].add(de)
+      update = False
+      index = 0
+      count += 1;
 
+      if (count < len(sampled_data) - 1):
+        index = count;
+        update = True
+      else:
+        if (random.randint(0,count-1) < k):
+          # replace with k/count probability
+          update = True
+          index = random.randint(0, k-1)
+
+      if (update):
+        sampled_data[index] = []
+        for j, v in enumerate(row):
+          #de = re.escape(row[j])
+          de = row[j]
+          tgs[j].add(de)
+          sampled_data[index].append(de)
+
+  # calculate data after figuring out waht sampled data is
+  data = [set() for i in sampled_data]
+  for j in sampled_data:
+    for k in j:
+      data[k].append(sampled_data[j][k])
   distinctRows = [(i,len(x)) for i,x in enumerate(data)]
         
   types = [tg.get_type() for tg in tgs]
-  return (distinctRows, columns, types)
+  return (sampled_data, distinctRows, columns, types)
 
 def parse_prune_cords(file): 
   data = []

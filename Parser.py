@@ -95,7 +95,8 @@ def parse_cords(file):
   data = []
   sampled_data = []
   with open(file, 'rb') as csvfile:
-    reader, reader2 = itertools.tee(csv.reader(csvfile, delimiter=',', quotechar='|'))
+    reader, reader2 = itertools.tee(csv.reader(csvfile))
+    data = [set() for _ in next(reader)]
     sampled_data = [[] for j in range(min(len(data), k))]
     columns = range(len(data))
     tgs = [TypeGuesser() for _ in columns]
@@ -127,7 +128,7 @@ def parse_cords(file):
   for j in sampled_data:
     for k in j:
       data[k].append(sampled_data[j][k])
-  distinctRows = [(i,len(x)) for i,x in enumerate(data)]
+  distinctRows = [len(x) for i, x in enumerate(data)]
         
   types = [tg.get_type() for tg in tgs]
   return (sampled_data, distinctRows, columns, types)

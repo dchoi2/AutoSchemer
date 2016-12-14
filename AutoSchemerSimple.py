@@ -19,7 +19,7 @@ class AutoSchemerSimple(AutoSchemer):
       (self.distinct_rows, self.col_order, types) = Parser.parse_simple(data_file)
 
     self.sc.set_types(types)
-    self.sc.print_types()
+    #self.sc.print_types()
     table_id = self._create_schema(data_file)
     
     if prune and len(separate_columns) > 0: 

@@ -4,8 +4,8 @@ import csv, itertools, sys, os
 from SchemaObjects import Table, Schema
 
 class AutoSchemerSimple(AutoSchemer):
-  def __init__(self, data_files):
-    AutoSchemer.__init__(self, data_files)
+  def __init__(self, data_files, prune_threshold):
+    AutoSchemer.__init__(self, data_files, prune_threshold)
     # col_order is order to traverse columns
     self.col_order = []
     self.distinct_rows = []
@@ -14,24 +14,28 @@ class AutoSchemerSimple(AutoSchemer):
     data_file = self.data_files[0]
 
     if prune:
-      (self.distinct_rows, self.col_order, types) = Parser.parse_prune_simple(data_file)
+      (self.distinct_rows, self.col_order, types, separate_columns) = Parser.parse_prune_simple(data_file, self.prune_threshold)
     else:
       (self.distinct_rows, self.col_order, types) = Parser.parse_simple(data_file)
 
     self.sc.set_types(types)
     self.sc.print_types()
-    self._create_schema(data_file)
+    table_id = self._create_schema(data_file)
+    
+    if prune and len(separate_columns) > 0: 
+      t = Table(list(separate_columns), list(separate_columns), [table_id])
+      self.sc.add(t)
     print self.sc
 
   def _create_schema(self, file):
-    self._add_table(file, self.col_order)
+    return self._add_table(file, self.col_order)
  
   def _add_table(self, file, columns_use):
     columns_use = set(columns_use)
     # columns => column numbers considered in the recursive loop
     columns = [i for i in self.col_order if i in columns_use]
     with open(file, 'rb') as csvfile:
-      readers = itertools.tee(csv.reader(csvfile, delimiter=',', quotechar='|'), len(columns))
+      readers = itertools.tee(csv.reader(csvfile), len(columns))
 
       done = set()
       primary_key = set()
@@ -40,7 +44,8 @@ class AutoSchemerSimple(AutoSchemer):
         if co not in done:
           # valid => set of valid column numbers to compare against
           valid = set([c for c in columns if c not in done and c != co])
-          prev = [None for _ in self.col_order]
+          #prev = [None for _ in self.col_order]
+          prev = {i: None for i in self.col_order}
           compared = False
           for r in sorted(readers[i], key=lambda row:row[co]):
             #print "prev: ", prev

@@ -4,8 +4,9 @@ from DBHandler import DBHandler
 from DBConnection import DBConnection
 
 class AutoSchemer:
-  def __init__(self, data_files):
+  def __init__(self, data_files, prune_threshold):
     self.data_files = data_files
+    self.prune_threshold = prune_threshold
     schema_name = "testSchema"
     self.sc = Schema(schema_name)
 

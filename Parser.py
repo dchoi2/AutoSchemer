@@ -21,12 +21,12 @@ class TypeGuesser(object):
   # can improve this metric
   def add(self, val):
     try:
-      int(val)
-      self.count[self.Types.INT]+=1
+      float(val)
+      self.count[self.Types.FLOAT]+=1
     except ValueError:
       try:
-        float(val)
-        self.count[self.Types.FLOAT]+=1
+        int(val)
+        self.count[self.Types.INT]+=1
       except ValueError:
         self.count[self.Types.VARCHAR] += 1
 
@@ -56,27 +56,38 @@ def parse_simple(file):
   types = [tg.get_type() for tg in tgs]
   return (distinctRows, col_order, types)
 
-def parse_prune_simple(file): 
+def parse_prune_simple(file, threshold): 
   data = []
+  count = 0
   with open(file, 'rb') as csvfile:
-    reader, reader2 = itertools.tee(csv.reader(csvfile, delimiter=',', quotechar='|'))
+    reader, reader2 = itertools.tee(csv.reader(csvfile))
     data = [set() for _ in next(reader)]
-    columns = range(0,len(data),2)
+    columns = range(0,len(data))
     tgs = [TypeGuesser() for _ in columns]
-    count = 0
+    #print len(tgs)
     for row in reader2:
       count += 1
       for j, v in enumerate(row):
         #de = re.escape(row[j])
+        #print j,v
         de = row[j]
         data[j].add(de)
         tgs[j].add(de)
-        
-  distinctRows = [(i,len(x)) for i,x in enumerate(data)]
+  
+  distinctRows = []
+  separate_columns = []
+  for i,x in enumerate(data):
+    print i, len(x), count
+    if len(x) < threshold * count:
+      distinctRows.append((i, len(x)))
+    else:
+      separate_columns.append(i)
+      
+  #distinctRows = [(i,len(x)) for i,x in enumerate(data)]
   col_order = [i for i,v in sorted(distinctRows, key=lambda v: v[1], reverse=True)]
 
   types = [tg.get_type() for tg in tgs]
-  return (distinctRows, col_order, types)
+  return (distinctRows, col_order, types, separate_columns)
 
 def parse_cords(file): 
   data = []

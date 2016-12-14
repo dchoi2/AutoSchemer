@@ -38,4 +38,4 @@ if __name__ == '__main__':
     Auto = AutoSchemerSimple.AutoSchemerSimple(data_files)
     Auto.run(False)
 
-  Auto.load_db() 
+  #Auto.load_db() 
